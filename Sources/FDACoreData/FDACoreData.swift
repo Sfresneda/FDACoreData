@@ -11,12 +11,12 @@ public actor FDACoreData<O: NSManagedObject> {
     private let dataStack: CoreDataStack
     
     // MARK: Lifecycle
-    init(container: NSPersistentContainer) {
+    public init(container: NSPersistentContainer) {
         dataStack = CoreDataStack(container: container)
     }
     
     /// Loads the persistent stores for the container.
-    func load() async throws -> Self {
+    public func load() async throws -> Self {
         _ = try await dataStack.load()
         return self
     }
@@ -40,7 +40,7 @@ public extension FDACoreData {
     
     /// Fetches NSManagedObject, optionally filtered by a search predicate.
     /// - Parameters:
-    ///  - limit: The maximum number of objects to fetch.
+    /// - limit: The maximum number of objects to fetch.
     /// - search: The predicate that specifies the filter criteria.
     /// - sort: The sort descriptors to use to order the fetched objects.
     /// - Returns: An array of NSManagedObject.
