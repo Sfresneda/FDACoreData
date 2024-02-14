@@ -11,7 +11,7 @@ final class FDACoreDataTests: XCTestCase {
                                                 managedObjectModel: model)
 
         sut = try await FDACoreData(container: container)
-        .load()
+            .load()
     }
 
     override func tearDown() {
@@ -23,6 +23,25 @@ final class FDACoreDataTests: XCTestCase {
         do {
             let _: MockObject = try await sut.create()
             // Then
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func test_update_shouldSucceed() async throws {
+        let newName = "Updated"
+        // When
+        do {
+            let item: MockObject = try await sut.create()
+            try await sut
+                .update(NSPredicate(format: "self == %@", item)) {
+                    $0.foo = newName
+                }
+            let fetchedItem = try await sut
+                .fetch(limit: 1,
+                       search: NSPredicate(format: "foo == %@", newName)).first
+            // Then
+            XCTAssertEqual(fetchedItem?.foo, newName)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
@@ -46,13 +65,13 @@ final class FDACoreDataTests: XCTestCase {
             let itemToRemove: MockObject = try await sut.create()
 
             let result1: [MockObject] = try await sut.fetch()
-            
+
             try await sut.delete(itemToRemove)
             let result2: [MockObject] = try await sut.fetch()
-            
+
             // Then
             XCTAssertLessThan(result2.count, result1.count)
-
+            
         } catch {
             XCTFail("Unexpected error: \(error)")
         }

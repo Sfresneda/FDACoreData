@@ -37,7 +37,27 @@ public extension FDACoreData {
         
         return model
     }
-    
+
+    /// Fetches NSManagedObject, optionally filtered by a search predicate.
+    /// The update operation will be saved to the context once the block is executed.
+    /// - Parameters:
+    /// - search: The predicate that specifies the filter criteria.
+    /// - sort: The sort descriptors to use to order the fetched objects.
+    /// - block: The block to execute the update for the fetched object.
+    func update(_ predicate: NSPredicate,
+                sort: [NSSortDescriptor]? = nil,
+                block: ((O) -> Void)) throws {
+        guard let objectToUpdate = try fetch(limit: 1,
+                                             search: predicate,
+                                             sort: sort).first else {
+            throw DataManagerError.entityNotFound
+        }
+
+        block(objectToUpdate)
+
+        try save()
+    }
+
     /// Fetches NSManagedObject, optionally filtered by a search predicate.
     /// - Parameters:
     /// - limit: The maximum number of objects to fetch.
@@ -63,7 +83,7 @@ public extension FDACoreData {
     
     /// Deletes a concrete NSManagedObject.
     /// - Parameter object: The NSManagedObject to delete.
-    func delete(_ object: NSManagedObject) {
+    func delete(_ object: O) {
         dataStack.context.delete(object)
     }
     
